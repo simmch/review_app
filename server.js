@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 */
 app.get("/login", (req, res) => {
   res.redirect(
-    `https://discordapp.com/api/oauth2/authorize?client_id=670739113061646347&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Foauth%2Fredirect&response_type=code&scope=identify`
+    `https://discordapp.com/api/oauth2/authorize?client_id=670739113061646347&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Foauth%2Fredirect&response_type=code&scope=guilds%20identify`
   );
 });
 
