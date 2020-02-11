@@ -13,7 +13,6 @@ app.listen(port, () => {
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname + "/index.html"));
-  console.log(req.query.accessToken);
 });
 
-app.use("/discord", require("./routes/discord"));
+app.use("/discord", require("./routes/discord/discordRoutes"));

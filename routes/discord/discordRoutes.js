@@ -4,14 +4,17 @@ const config = require("config");
 const client_id = config.get("client_id");
 const client_secret = config.get("client_secret");
 const axios = require("axios");
+const authorization = require("./middleware/auth");
+const cookieParser = require("cookie-parser");
 
+router.use(cookieParser());
 // @route   GET /discord/login
 // @desc    Authentication Route
 // @access  Public
 
 router.get("/login", (req, res) => {
   res.redirect(
-    `https://discordapp.com/api/oauth2/authorize?client_id=670739113061646347&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fdiscord%2Foauth%2Fredirect&response_type=code&scope=identify%20guilds`
+    `https://discordapp.com/api/oauth2/authorize?client_id=670739113061646347&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fdiscord%2Foauth%2Fredirect&response_type=code&scope=identify%20email%20connections%20guilds`
   );
 });
 
@@ -24,7 +27,7 @@ router.get("/oauth/redirect", (req, res) => {
     grant_type: "authorization_code",
     code: req.query.code,
     redirect_uri: "http://localhost:5000/discord/oauth/redirect",
-    scope: "identify guilds"
+    scope: "identify email guilds connections"
   };
   // Make call for Token
   axios
@@ -39,7 +42,11 @@ router.get("/oauth/redirect", (req, res) => {
     )
     .then(response => {
       const accessToken = response.data.access_token;
-      console.log("SUCCESS GATHERING TOKEN: " + accessToken);
+
+      res.cookie("access_token", accessToken, {
+        httpOnly: true,
+        maxAge: 3600000
+      });
       res.redirect(`/discord/welcome`);
     })
     .catch(err => {
@@ -51,11 +58,8 @@ router.get("/oauth/redirect", (req, res) => {
 // @route   /discord/welcome
 // @desc    Redirect to Welcome Page After Authentication Token Received
 // @public  Public
-router.get("/welcome", (req, res) => {
-  // if (!req.query.accessToken) {
-  //   res.redirect("/");
-  // }
-  res.send("ACCESS TOKEN: " + req.query.code);
+router.get("/welcome", authorization, (req, res) => {
+  res.send("ACCESS TOKEN: " + req.cookies.access_token);
   console.log("Routed to Welcome Page");
 });
 
